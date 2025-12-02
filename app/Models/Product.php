@@ -24,6 +24,7 @@ class Product extends Model
         'stock',
         'short_description',
         'long_description',
+        'youtube_video_link',
         'vat_tax',
         'image',
         'gallery_image',

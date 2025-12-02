@@ -693,6 +693,7 @@ class ProductController extends Controller
         $productUpdate->product_code = $request->product_code;
         $productUpdate->short_description = $request->short_description;
         $productUpdate->long_description = $request->long_description;
+        $productUpdate->youtube_video_link = $request->youtube_video_link;
         $productUpdate->policy = $request->policy;
         $productUpdate->product_type = $request->product_type;
         $productUpdate->seo_title = $request->seo_title;
@@ -814,6 +815,7 @@ class ProductController extends Controller
         $product->long_description = $request->long_description;
         $product->policy = $request->policy;
         $product->product_type = $request->product_type;
+        $product->image = $input['image'];
         $product->save();
 
         if(!empty($product)){

@@ -161,6 +161,11 @@
                                                 <span style="color: red"> {{ $errors->has('long_description') ? $errors->first('long_description') : ' ' }}</span>
                                             </div>
                                             <div class="form-group">
+                                                <label style="padding-bottom: 5px;font-weight: 600;font-size: 15px;letter-spacing: 1px;">YouTube Video Link (Optional)</label>
+                                                <input type="text" name="youtube_video_link" value="{{ old('youtube_video_link') }}" class="form-control" placeholder="https://www.youtube.com/watch?v=..."><br>
+                                                <span style="color: red"> {{ $errors->has('youtube_video_link') ? $errors->first('youtube_video_link') : ' ' }}</span>
+                                            </div>
+                                            <div class="form-group">
                                                 <label style="padding-bottom: 5px;font-weight: 600;font-size: 15px;letter-spacing: 1px;">Product Policy <small style="color: red; font-size: 18px;"></small></label>
                                                 <textarea class="ckeditor" name="policy">{{ old('policy') }}</textarea><br>
                                                 <span style="color: red"> {{ $errors->has('policy') ? $errors->first('policy') : ' ' }}</span>

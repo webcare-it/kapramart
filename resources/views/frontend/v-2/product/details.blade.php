@@ -135,6 +135,38 @@
                                 <div class="tab-content" id="pills-tabContent">
                                     <div class="tab-pane fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab">
                                         {!!$details->long_description!!}
+                                        
+                                        @if($details->youtube_video_link)
+                                        <div class="product-video-section mt-4">
+                                            <h4>Product Video</h4>
+                                            <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                                <?php
+                                                // Extract YouTube video ID from various URL formats
+                                                $videoId = '';
+                                                $url = $details->youtube_video_link;
+                                                
+                                                // Check for different YouTube URL formats
+                                                if (preg_match('/youtube\.com\/watch\?v=([^\&\?\/]+)/', $url, $matches)) {
+                                                    $videoId = $matches[1];
+                                                } elseif (preg_match('/youtube\.com\/embed\/([^\&\?\/]+)/', $url, $matches)) {
+                                                    $videoId = $matches[1];
+                                                } elseif (preg_match('/youtu\.be\/([^\&\?\/]+)/', $url, $matches)) {
+                                                    $videoId = $matches[1];
+                                                } elseif (preg_match('/youtube\.com\/v\/([^\&\?\/]+)/', $url, $matches)) {
+                                                    $videoId = $matches[1];
+                                                } elseif (preg_match('/youtube\.com\/watch\?v=([^\&\?\/]+)/', $url, $matches)) {
+                                                    $videoId = $matches[1];
+                                                }
+                                                ?>
+                                                @if($videoId)
+                                                <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                                                        src="https://www.youtube.com/embed/{{ $videoId }}" 
+                                                        frameborder="0" allowfullscreen>
+                                                </iframe>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                     <div class="tab-pane fade" id="pills-review" role="tabpanel" aria-labelledby="pills-review-tab">
                                         @foreach ($details->reviews as $review)
