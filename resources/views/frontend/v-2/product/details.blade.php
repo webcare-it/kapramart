@@ -54,8 +54,8 @@
                                             @foreach ($details->colors as $color)
                                             @if ($color->color != null)
                                             <div class="product-details-select-item-outer">
-                                                <input type="radio" name="color" id="color" value="{{$color->color}}" class="category-item-radio">
-                                                <label for="color" class="category-item-label">{{$color->color}}</label>
+                                                <input type="radio" name="color" id="color-{{$color->id}}" value="{{$color->color}}" class="category-item-radio">
+                                                <label for="color-{{$color->id}}" class="category-item-label">{{$color->color}}</label>
                                             </div>
                                             @endif
                                             @endforeach
@@ -64,20 +64,22 @@
                                             @foreach ( $details->sizes as $size )
                                             @if ($size->size != null)
                                             <div class="product-details-select-item-outer">
-                                                <input type="radio" name="size" value="{{$size->size}}" class="category-item-radio">
-                                                <label for="size" class="category-item-label">{{$size->size}}</label>
+                                                <input type="radio" name="size" id="size-{{$size->id}}" value="{{$size->size}}" class="category-item-radio">
+                                                <label for="size-{{$size->id}}" class="category-item-label">{{$size->size}}</label>
                                             </div>
                                             @endif
                                             @endforeach
                                         </div>
-                                        <form action="{{url('/add/to/cart/details/page/'.$details->id)}}" onsubmit="onSubmitForm(event)" id="addToCartForm" method="POST">
+                                        <form action="{{url('/add/to/cart/details/page/'.$details->id)}}" id="addToCartForm" method="POST">
                                             @csrf
                                             <input type="hidden" name="product_id" value="{{$details->id}}">
                                             @if ($details->discount_price != null)
-                                            <input type="hidden" name="price" value="{{$details->discount_price}}">
+                                            <input type="hidden" name="price" value="{{$details->discount_price}}" id="productPrice">
                                             @else
-                                            <input type="hidden" name="price" value="{{$details->regular_price}}">
+                                            <input type="hidden" name="price" value="{{$details->regular_price}}" id="productPrice">
                                             @endif
+                                            <input type="hidden" name="color" id="selectedColor" value="">
+                                            <input type="hidden" name="size" id="selectedSize" value="">
                                             <div class="purchase-info-outer">
                                                 <div class="product-incremnt-decrement-outer" style="display: block">
                                                     <a title="Decrement" class="decrement-btn" style="margin-top: -10px;" onclick="decrementQuantity()">
@@ -89,11 +91,11 @@
                                                     </a>
                                                 </div>
                                                 <div>
-                                                    {{-- <button type="submit" name="action" value="addToCart" id="addToCart" class="cart-btn-inner">
+                                                    <button type="submit" name="action" value="addToCart" class="cart-btn-inner">
                                                         <i class="fas fa-shopping-cart"></i>
                                                         Add to Cart
-                                                    </button> --}}
-                                                    <button type="submit" name="action" value="buyNow" id="buyNow" class="cart-btn-inner">
+                                                    </button>
+                                                    <button type="submit" name="action" value="buyNow" class="cart-btn-inner">
                                                         <i class="fas fa-truck"></i>
                                                         Order Now
                                                     </button>
@@ -293,6 +295,7 @@
 @push('script')
 <script>
     var quantityInput = document.getElementById("qty");
+    
     function incrementQuantity() {
         var currentQuantity = parseInt(quantityInput.value);
         if (!isNaN(currentQuantity)) {
@@ -306,69 +309,63 @@
             quantityInput.value = currentQuantity - 1;
         }
     }
+    
+    // Update hidden inputs when color or size is selected
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle color selection
+        const colorInputs = document.querySelectorAll('input[name="color"]');
+        colorInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                document.getElementById('selectedColor').value = this.value;
+            });
+        });
+        
+        // Handle size selection
+        const sizeInputs = document.querySelectorAll('input[name="size"]');
+        sizeInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                document.getElementById('selectedSize').value = this.value;
+            });
+        });
+    });
+    
+    // Simple form submission without preventing default
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        // Get the submit button that was clicked
+        var submitButton = document.activeElement;
+        var action = submitButton ? submitButton.value : 'addToCart';
+        
+        // Set a data attribute to track which action was taken
+        this.setAttribute('data-action', action);
+    });
 </script>
 
 <script>
-        window.addEventListener('load', function() {
-            var product_name = document.getElementById('product_name').value;
-            var price = document.getElementById('price').value;
-            var product_id = document.getElementById('product_id').value;
-            var category = document.getElementById('category').value;
-            dataLayer.push({
-                ecommerce: null
-            });
-            dataLayer.push({
-                event: "view_item",
-                ecommerce: {
-                    items: [{
-                        item_name: product_name,
-                        item_id: product_id,
-                        price: price,
-                        item_brand: "Unknown",
-                        item_category: category,
-                        item_variant: "",
-                        item_list_name: "",
-                        item_list_id: "",
-                        index: 0,
-                        quantity: 1,
-                    }]
-                }
-            });
+    window.addEventListener('load', function() {
+        var product_name = document.getElementById('product_name').value;
+        var price = document.getElementById('price').value;
+        var product_id = document.getElementById('product_id').value;
+        var category = document.getElementById('category').value;
+        dataLayer.push({
+            ecommerce: null
         });
-    </script>
-
-    <script>
-        function onSubmitForm(event) {
-            event.preventDefault();
-
-            var product_name = document.getElementById('product_name').value;
-            var price = document.getElementById('price').value;
-            var product_id = document.getElementById('product_id').value;
-            var category = document.getElementById('category').value;
-
-            dataLayer = window.dataLayer || [];
-
-            dataLayer.push({
-                ecommerce: null
-            });
-            dataLayer.push({
-                event: "add_to_cart",
-                ecommerce: {
-                    items: [{
-                        item_name: product_name,
-                        item_id: product_id,
-                        price: price,
-                        item_brand: "Unknown",
-                        item_category: category,
-                        item_variant: "",
-                        item_list_name: "",
-                        item_list_id: "",
-                        index: 0,
-                        quantity: 1,
-                    }]
-                }
-            });
-            document.getElementById('addToCartForm').submit();
-        }
-    </script>
+        dataLayer.push({
+            event: "view_item",
+            ecommerce: {
+                items: [{
+                    item_name: product_name,
+                    item_id: product_id,
+                    price: price,
+                    item_brand: "Unknown",
+                    item_category: category,
+                    item_variant: "",
+                    item_list_name: "",
+                    item_list_id: "",
+                    index: 0,
+                    quantity: 1,
+                }]
+            }
+        });
+    });
+</script>
 @endpush

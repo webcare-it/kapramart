@@ -8,7 +8,7 @@ use App\Models\Product;
 use App\Models\RelatedProduct;
 use App\Models\SubDistrict;
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
@@ -75,8 +75,7 @@ class CartController extends Controller
                 }
             }
 
-            // return redirect()->back()->with('success', 'Added to cart!');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Product has been successfully added to cart.');
         }
 
         else{
@@ -114,10 +113,10 @@ class CartController extends Controller
                 }
             }
 
-            // return redirect('/checkout')->with('success', 'Added to cart!');
-            return redirect('/checkout');
+            return redirect('/checkout')->with('success', 'Product has been successfully added to cart.');
         }
     }
+    
     public function addToCartDetailsPage(Request $request, $id)
     {
         //Check Previos Cart Product Type...
@@ -145,7 +144,9 @@ class CartController extends Controller
         if($action === 'addToCart'){
             if ($oldCartProduct){
                 $oldCartProduct->qty = $oldCartProduct->qty + $request->qty;
-                $oldCartProduct->price += $request->inputPrice;
+                // Calculate the correct price based on product pricing
+                $productPrice = $currentCartProduct->discount_price ?? $currentCartProduct->regular_price;
+                $oldCartProduct->price = $oldCartProduct->qty * $productPrice;
                 $oldCartProduct->save();
             }
             else
@@ -170,14 +171,15 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
-            // return redirect()->back()->with('success', 'Added to cart!');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Product has been successfully added to cart.');
         }
 
         else{
             if ($oldCartProduct){
                 $oldCartProduct->qty = $oldCartProduct->qty + $request->qty;
-                $oldCartProduct->price += $request->inputPrice;
+                // Calculate the correct price based on product pricing
+                $productPrice = $currentCartProduct->discount_price ?? $currentCartProduct->regular_price;
+                $oldCartProduct->price = $oldCartProduct->qty * $productPrice;
                 $oldCartProduct->save();
             }
             else
@@ -202,8 +204,7 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
-            // return redirect('/checkout')->with('success', 'Added to cart!');
-            return redirect('/checkout');
+            return redirect('/checkout')->with('success', 'Product has been successfully added to cart.');
         }
     }
 
@@ -239,8 +240,7 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
-            // return redirect()->back()->with('success', 'Added to cart!');
-            return redirect()->back();
+            return redirect()->back()->with('success', 'Product has been successfully added to cart.');
         }
 
         else{
@@ -271,8 +271,7 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
-            // return redirect('/checkout')->with('success', 'Added to cart!');
-            return redirect('/checkout');
+            return redirect('/checkout')->with('success', 'Product has been successfully added to cart.');
         }
     }
 
@@ -379,6 +378,9 @@ class CartController extends Controller
          $cartUpdate = Cart::find($id);
          $product = Product::where('id', $cartUpdate->product_id)->first();
          $cartUpdate->qty = $request->qty;
+         // Recalculate price based on product pricing
+         $productPrice = $product->discount_price ?? $product->regular_price;
+         $cartUpdate->price = $cartUpdate->qty * $productPrice;
          $cartUpdate->save();
          return redirect()->back()->with('success', 'Cart has been updated');
      }
