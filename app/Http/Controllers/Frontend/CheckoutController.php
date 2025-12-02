@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CheckoutRequest;
 use App\Http\Requests\OrderStoreRequest;
+use App\Mail\OrderNotification;
 use App\Models\Admin;
 use App\Models\Billing;
 use App\Models\Cart;
@@ -15,9 +16,11 @@ use App\Models\Product;
 use App\Models\RelatedProduct;
 use App\Models\Shipping;
 use Exception;
-use Session;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Models\GeneralSetting;
 
 class CheckoutController extends Controller
 {
@@ -134,6 +137,10 @@ class CheckoutController extends Controller
                 $product->delete();
             }
         }
+        
+        // Send order notification email
+        $this->sendOrderNotification($order);
+
         $this->setSuccessMessage('Your order has been successfully submitted. Thank you for connecting us.');
         if($request->order_type == 'Website'){
             return redirect('/order-received/'.$order->orderId);
@@ -247,12 +254,37 @@ class CheckoutController extends Controller
                 $product->delete();
             }
         }
+        
+        // Send order notification email
+        $this->sendOrderNotification($order);
+
         $this->setSuccessMessage('Your order has been successfully submitted. Thank you for connecting us.');
         if($request->order_type == 'Website'){
             return redirect('/order-received/'.$order->orderId);
         }
         else{
             return redirect('/admin/dashboard');
+        }
+    }
+
+    // New method to send order notification email
+    private function sendOrderNotification($order)
+    {
+        try {
+            // Get the admin notification email from settings
+            $generalSetting = GeneralSetting::first();
+            
+            if ($generalSetting && !empty($generalSetting->admin_notification_email)) {
+                // Load the order with its details and products
+                $orderWithDetails = Order::with(['orderDetails.product', 'district', 'subDistrict'])->find($order->id);
+                
+                // Send the email
+                Mail::to($generalSetting->admin_notification_email)
+                    ->send(new OrderNotification($orderWithDetails));
+            }
+        } catch (\Exception $e) {
+            // Log the error but don't stop the order process
+            \Illuminate\Support\Facades\Log::error('Order notification email failed: ' . $e->getMessage());
         }
     }
 
@@ -483,6 +515,9 @@ class CheckoutController extends Controller
                 $product->delete();
             }
         }
+        
+        // Send order notification email
+        $this->sendOrderNotification($order);
 
         return redirect('/order/complete')->with('success', 'Your order has been successfully submitted. Thank you for connecting us.');
     }

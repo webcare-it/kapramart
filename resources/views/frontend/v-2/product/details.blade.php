@@ -109,10 +109,16 @@
                                                 Stock Out
                                             </button>
                                         </div> --}}
-                                        <button type="button" class="product-details-hot-line">
+                                        <button type="button" class="product-details-hot-line" onclick="window.location.href='tel:{{$setting->phone}}'">
                                             <i class="fas fa-phone-alt"></i>
                                             For Call : {{$setting->phone}}
                                         </button>
+                                        @if(!empty($setting->whatsapp))
+                                        <button type="button" class="product-details-hot-line" onclick="window.open('https://wa.me/{{$setting->whatsapp}}', '_blank')">
+                                            <i class="fab fa-whatsapp"></i>
+                                            WhatsApp : {{$setting->whatsapp}}
+                                        </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

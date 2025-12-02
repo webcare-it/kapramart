@@ -238,6 +238,10 @@ Route::group(['middleware' => 'isAdmin'], function(){
     Route::post('/assign-users/for-selected-orders', [App\Http\Controllers\Admin\UserController::class, 'assignUserOrder']);
     //User
 
+    // SMTP Settings Routes
+    Route::get('/smtp/settings', [\App\Http\Controllers\Admin\SettingController::class, 'smtpSettings'])->name('admin.smtp.settings');
+    Route::post('/smtp/settings/update', [\App\Http\Controllers\Admin\SettingController::class, 'updateSmtpSettings'])->name('admin.smtp.settings.update');
+
     //Manual Order...
     Route::get('order/add-manually', [\App\Http\Controllers\Admin\AdminController::class, 'addManualOrder']);
     Route::get('order/checkout-manually/{product_id}', [\App\Http\Controllers\Admin\AdminController::class, 'checkoutManualOrder']);

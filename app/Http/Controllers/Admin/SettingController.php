@@ -15,6 +15,7 @@ use Codeboxr\PathaoCourier\Facade\PathaoCourier;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
 
 class SettingController extends Controller
 {
@@ -243,6 +244,59 @@ class SettingController extends Controller
         return view('admin.general_setting.index', compact('general_setting'));
     }
 
+    // Add new method for SMTP settings
+    public function smtpSettings()
+    {
+        $general_setting = GeneralSetting::first();
+        return view('admin.settings.smtp-settings', compact('general_setting'));
+    }
+
+    // Add new method to update SMTP settings
+    public function updateSmtpSettings(Request $request)
+    {
+        $general_setting = GeneralSetting::first();
+        
+        // Update admin notification email
+        $general_setting->admin_notification_email = $request->admin_notification_email;
+        
+        // Update SMTP settings
+        $general_setting->mail_host = $request->mail_host;
+        $general_setting->mail_port = $request->mail_port;
+        $general_setting->mail_username = $request->mail_username;
+        $general_setting->mail_password = $request->mail_password;
+        $general_setting->mail_encryption = $request->mail_encryption;
+        $general_setting->mail_from_address = $request->mail_from_address;
+        $general_setting->mail_from_name = $request->mail_from_name;
+        
+        $general_setting->save();
+
+        // Update the .env file with new SMTP settings
+        $this->updateEnvFile($request);
+
+        // Clear config cache to apply new mail settings
+        Artisan::call('config:clear');
+
+        return redirect()->back()->with('success', 'SMTP settings updated successfully!');
+    }
+
+    // Helper method to update .env file
+    private function updateEnvFile($request)
+    {
+        $envFilePath = base_path('.env');
+        $envContent = file_get_contents($envFilePath);
+
+        // Update mail settings in .env file
+        $envContent = preg_replace('/MAIL_HOST=.*/', 'MAIL_HOST=' . ($request->mail_host ?? 'mailpit'), $envContent);
+        $envContent = preg_replace('/MAIL_PORT=.*/', 'MAIL_PORT=' . ($request->mail_port ?? '1025'), $envContent);
+        $envContent = preg_replace('/MAIL_USERNAME=.*/', 'MAIL_USERNAME=' . ($request->mail_username ?? 'null'), $envContent);
+        $envContent = preg_replace('/MAIL_PASSWORD=.*/', 'MAIL_PASSWORD=' . ($request->mail_password ?? 'null'), $envContent);
+        $envContent = preg_replace('/MAIL_ENCRYPTION=.*/', 'MAIL_ENCRYPTION=' . ($request->mail_encryption ?? 'null'), $envContent);
+        $envContent = preg_replace('/MAIL_FROM_ADDRESS=.*/', 'MAIL_FROM_ADDRESS="' . ($request->mail_from_address ?? 'hello@example.com') . '"', $envContent);
+        $envContent = preg_replace('/MAIL_FROM_NAME=.*/', 'MAIL_FROM_NAME="' . ($request->mail_from_name ?? '${APP_NAME}') . '"', $envContent);
+
+        file_put_contents($envFilePath, $envContent);
+    }
+
     public function showSteadfastCourier()
     {
         $general_setting = GeneralSetting::first();
@@ -278,6 +332,7 @@ class SettingController extends Controller
         }
 
         $general_setting->phone = $request->phone;
+        $general_setting->whatsapp = $request->whatsapp;
         $general_setting->email = $request->email;
         $general_setting->facebook = $request->facebook;
         $general_setting->instagram = $request->instagram;

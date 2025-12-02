@@ -52,7 +52,7 @@
     <!-- Jquery CDN -->
     @include('frontend.v-2.includes.script')
     @stack('script')
-    <a href="https://wa.me/1333088355" target="_blank" class="whatapps-btn-inner">
+    <a href="https://wa.me/{{ $setting->whatsapp ?? '1333088355' }}" target="_blank" class="whatapps-btn-inner">
         <i class="fab fa-whatsapp"></i>
     </a>
 </body>

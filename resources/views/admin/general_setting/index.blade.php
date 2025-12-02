@@ -32,6 +32,13 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
+                                                    <label style="padding-bottom: 5px;font-weight: 600;font-size: 15px;letter-spacing: 1px;">WhatsApp Number</label>
+                                                    <input type="text" name="whatsapp" value="{{$general_setting->whatsapp}}" class="form-control" placeholder="Enter WhatsApp number"><br>
+                                                    <span style="color: red"> {{ $errors->has('whatsapp') ? $errors->first('whatsapp') : ' ' }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
                                                     <label style="padding-bottom: 5px;font-weight: 600;font-size: 15px;letter-spacing: 1px;">Email <small style="color: red; font-size: 18px;">*</small></label>
                                                     <input type="email" name="email" value="{{$general_setting->email}}" class="form-control" placeholder="Enter email"><br>
                                                     <span style="color: red"> {{ $errors->has('email') ? $errors->first('email') : ' ' }}</span>

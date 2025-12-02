@@ -1,47 +1,51 @@
-<footer class="footer-section">
-    <div class="footer__top-wrapper">
+<footer class="footer">
+    <div class="footer__top">
         <div class="container">
-            <a href="#" class="footer__brand-logo-outer">
-                <img src="{{asset('setting/'.$setting->logo)}}" class="footer__brand-logo-inner" />
-            </a>
-        </div>
-    </div>    
-    <div class="footer__main-wrapper">
-        <div class="container">        
             <div class="row">
                 <div class="col-lg-3 col-md-6">
                     <div class="footer__item-wrap">
                         <h4 class="footer__item-title">
-                            Policy
+                            About Us
                         </h4>
-                        <ul class="footer__list">
-                            <li class="footer__list-item">
-                                <a href="{{ url('/privacy-policy') }}" class="footer__list-item-link">
-                                    Privacy Policy
+                        <p class="footer__item-desc">
+                            {{ substr($setting->about ?? '', 0, 150) }}...
+                        </p>
+                        <ul class="footer__social-list">
+                            @if(!empty($setting->facebook))
+                            <li class="footer__social-list-item">
+                                <a href="{{$setting->facebook}}" class="footer__social-list-item-link">
+                                    <i class="fab fa-facebook-f"></i>
                                 </a>
                             </li>
-                            <li class="footer__list-item">
-                                <a href="{{ url('/term-conditions') }}" class="footer__list-item-link">
-                                    Terms & Conditions
+                            @endif
+                            @if(!empty($setting->twitter))
+                            <li class="footer__social-list-item">
+                                <a href="{{$setting->twitter}}" class="footer__social-list-item-link">
+                                    <i class="fab fa-twitter"></i>
                                 </a>
                             </li>
-                            <li class="footer__list-item">
-                                <a href="{{ url('/refund-policy') }}" class="footer__list-item-link">
-                                    Refund Policy
+                            @endif
+                            @if(!empty($setting->instagram))
+                            <li class="footer__social-list-item">
+                                <a href="{{$setting->instagram}}" class="footer__social-list-item-link">
+                                    <i class="fab fa-instagram"></i>
                                 </a>
                             </li>
-                            <li class="footer__list-item">
-                                <a href="{{ url('/payment-policy') }}" class="footer__list-item-link">
-                                    Payment Policy
+                            @endif
+                            @if(!empty($setting->youtube))
+                            <li class="footer__social-list-item">
+                                <a href="{{$setting->youtube}}" class="footer__social-list-item-link">
+                                    <i class="fab fa-youtube"></i>
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="footer__item-wrap">
                         <h4 class="footer__item-title">
-                           Contacts
+                            Contact Info
                         </h4>
                         <ul class="footer__contact-info-list">
                             <li class="footer__contact-info-list-item">
@@ -60,6 +64,16 @@
                                     {{ $setting->phone ?? '' }}
                                 </a>
                             </li>
+                            @if(!empty($setting->whatsapp))
+                            <li class="footer__contact-info-list-item">
+                                <p class="footer__contact-info-list-item-label">
+                                    WhatsApp:                                   
+                                </p>
+                                <a href="https://wa.me/{{ $setting->whatsapp  }}" target="_blank" class="footer__contact-info-list-item-value">
+                                    {{ $setting->whatsapp ?? '' }}
+                                </a>
+                            </li>
+                            @endif
                             <li class="footer__contact-info-list-item">
                                 <p class="footer__contact-info-list-item-label">
                                     Email:                                   
@@ -76,25 +90,30 @@
                         <h4 class="footer__item-title">
                             Others
                         </h4>
-                        <ul class="footer__list">
-                            <li class="footer__list-item">
-                                <a href="{{ url('/about-us') }}" class="footer__list-item-link">
+                        <ul class="footer__others-list">
+                            <li class="footer__others-list-item">
+                                <a href="{{ url('/page/privacy-policy') }}" class="footer__others-list-item-link">
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li class="footer__others-list-item">
+                                <a href="{{ url('/page/terms-condition') }}" class="footer__others-list-item-link">
+                                    Terms & Conditions
+                                </a>
+                            </li>
+                            <li class="footer__others-list-item">
+                                <a href="{{ url('/page/refund-policy') }}" class="footer__others-list-item-link">
+                                    Refund Policy
+                                </a>
+                            </li>
+                            <li class="footer__others-list-item">
+                                <a href="{{ url('/page/payment-policy') }}" class="footer__others-list-item-link">
+                                    Payment Policy
+                                </a>
+                            </li>
+                            <li class="footer__others-list-item">
+                                <a href="{{ url('/page/about-us') }}" class="footer__others-list-item-link">
                                     About Us
-                                </a>
-                            </li>
-                            <li class="footer__list-item">
-                                <a href="{{ url('/contact-us') }}" class="footer__list-item-link">
-                                    Contact Us
-                                </a>
-                            </li>
-                            <li class="footer__list-item">
-                                <a href="{{ url('/all/blogs') }}" class="footer__list-item-link">
-                                    Blog
-                                </a>
-                            </li>
-                            <li class="footer__list-item">
-                                <a href="{{ url('/career') }}" class="footer__list-item-link">
-                                    Careers
                                 </a>
                             </li>
                         </ul>
@@ -103,41 +122,36 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="footer__item-wrap">
                         <h4 class="footer__item-title">
-                            Follow Us
+                            Newsletter
                         </h4>
-                        <ul class="footer__social-list">
-                            <li class="footer__social-list-item">
-                                <a href="{{ $setting->facebook ?? '' }}" class="footer__social-list-item-lisk">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                            </li>
-                            <li class="footer__social-list-item">
-                                <a href="{{ $setting->twitter ?? '' }}" class="footer__social-list-item-lisk">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                            </li>
-                            <li class="footer__social-list-item">
-                                <a href="{{ $setting->instagram ?? '' }}" class="footer__social-list-item-lisk">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                            </li>
-                            <li class="footer__social-list-item">
-                                <a href="{{ $setting->youtube ?? '' }}" class="footer__social-list-item-lisk">
-                                    <i class="fab fa-youtube"></i>
-                                </a>
-                            </li>
-                        </ul>
+                        <p class="footer__item-desc">
+                            Subscribe to our newsletter to get latest updates.
+                        </p>
+                        <form action="{{ url('/subscriber/store') }}" method="post" class="footer__newsletter-form">
+                            @csrf
+                            <div class="footer__newsletter-form-group">
+                                <input type="email" name="email" class="footer__newsletter-form-control" placeholder="Enter your email">
+                                <button type="submit" class="footer__newsletter-form-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="footer__bottom-wrapper">
+    <div class="footer__bottom">
         <div class="container">
-            <p class="footer__bottom-text">
-                © {{ date('Y')  }}, All rights reserved
-                <strong class="text-brand">{{env('APP_URL')}}</strong>
-            </p>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="footer__bottom-content">
+                        <p class="footer__bottom-content-text">
+                            &copy; {{ date('Y') }} {{ env('APP_NAME') }}. All rights reserved.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </footer>

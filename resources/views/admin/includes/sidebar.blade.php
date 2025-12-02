@@ -556,6 +556,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url('/smtp/settings') }}">
+                    <i class="bx bx-right-arrow-alt"></i>SMTP Settings
+                </a>
+            </li>
+            <li>
                 <a href="{{ url('/banner/add') }}">
                     <i class="bx bx-right-arrow-alt"></i>Banners
                 </a>
