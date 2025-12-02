@@ -17,41 +17,35 @@
                                 </div>
                             @endif
 
-                            <form action="{{ url('/admin/update/credentials') }}" method="post" enctype="multipart/form-data">
+                            <form action="{{ url('/admin/update/credentials') }}" method="post">
                                 @csrf
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label
-                                                            style="padding-bottom: 5px;font-weight: 600;font-size: 15px;letter-spacing: 1px;">Email
-                                                            <small style="color: red; font-size: 18px;">*</small></label>
-                                                        <input type="text" name="email"
-                                                            value="{{ $credential->email }}" class="form-control"
-                                                            readonly><br>
-                                                        <span style="color: red">
-                                                            {{ $errors->has('email') ? $errors->first('email') : ' ' }}</span>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card border-top border-0 border-4 border-primary">
+                                            <div class="card-body p-5">
+                                                <div class="card-title d-flex align-items-center">
+                                                    <div><i class="bx bxs-user me-1 font-22 text-primary"></i>
                                                     </div>
+                                                    <h5 class="mb-0 text-primary">Change Credentials</h5>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label
-                                                            style="padding-bottom: 5px;font-weight: 600;font-size: 15px;letter-spacing: 1px;">New
-                                                            Password <small
-                                                                style="color: red; font-size: 18px;">*</small></label>
-                                                        <input type="text" name="password"
-                                                            class="form-control"
-                                                            placeholder="Enter password" required><br>
-                                                        <span style="color: red">
-                                                            {{ $errors->has('password') ? $errors->first('password') : ' ' }}</span>
-                                                    </div>
+                                                <hr>
+                                                <div class="form-group mb-3">
+                                                    <label for="password">Password</label>
+                                                    <input type="password" name="password" class="form-control"
+                                                        placeholder="Enter New Password">
+                                                </div>
+                                                <div class="form-group mb-3">
+                                                    <label for="confirm_password">Confirm Password</label>
+                                                    <input type="password" name="password_confirmation"
+                                                        class="form-control" placeholder="Confirm Password">
+                                                </div>
+                                                <div class="d-grid">
+                                                    <button type="submit" class="btn btn-primary">Update</button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-success mt-2 float-right">Submit</button>
+                                </div>
                             </form>
                         </div>
                     </div>

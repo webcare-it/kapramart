@@ -847,38 +847,105 @@ class ReportController extends Controller
         //Create Pathao New Parcel...
         if($request->courier == 'Pathao'){
             $orderDetails = Order::find($id);
-            $response = PathaoCourier::order()
-                        ->create([
-                            "store_id"            => "184689", // Find in store list,
-                            "merchant_order_id"   => $orderDetails->orderId, // Unique order id
-                            "recipient_name"      => $orderDetails->name, // Customer name
-                            "recipient_phone"     => $orderDetails->phone, // Customer phone
-                            "recipient_address"   => $orderDetails->address, // Customer address
-                            "recipient_city"      => $request->city, // Find in city method
-                            "recipient_zone"      => $request->zone, // Find in zone method
-                            //"recipient_area"      => "5166", // Find in Area method
-                            "delivery_type"       => "48", // 48 for normal delivery or 12 for on demand delivery
-                            "item_type"           => "2", // 1 for document,2 for parcel
-                            "special_instruction" => $request->pathao_special_note,
-                            "item_quantity"       => "1", // item quantity
-                            "item_weight"         => "0.5", // parcel weight
-                            "amount_to_collect"   => (int) $orderDetails->price, // amount to collect
-                            "item_description"    => "Not any" // product details
-                        ]);
-            $responseArray = json_decode(json_encode($response), true);
-            $consignmentId = $responseArray['consignment_id'];
-            $orderDetails->consignmentId = $consignmentId;
-            $orderDetails->save();
+            
+            // Validate order exists
+            if (!$orderDetails) {
+                return redirect()->back()->withErrors(['error' => 'Order not found.']);
+            }
+            
+            try {
+                // Prepare the request data
+                $requestData = [
+                    "store_id"            => "184689", // Find in store list,
+                    "merchant_order_id"   => $orderDetails->orderId, // Unique order id
+                    "recipient_name"      => $orderDetails->name, // Customer name
+                    "recipient_phone"     => $orderDetails->phone, // Customer phone
+                    "recipient_address"   => $orderDetails->address, // Customer address
+                    "recipient_city"      => $request->city, // Find in city method
+                    "recipient_zone"      => $request->zone, // Find in zone method
+                    "delivery_type"       => "48", // 48 for normal delivery or 12 for on demand delivery
+                    "item_type"           => "2", // 1 for document,2 for parcel
+                    "special_instruction" => $request->pathao_special_note,
+                    "item_quantity"       => "1", // item quantity
+                    "item_weight"         => "0.5", // parcel weight
+                    "amount_to_collect"   => (int) $orderDetails->price, // amount to collect
+                    "item_description"    => "Not any" // product details
+                ];
+                
+                // Log the request for debugging
+                \Illuminate\Support\Facades\Log::info('Pathao API Request', [
+                    'order_id' => $orderDetails->id,
+                    'request_data' => $requestData
+                ]);
+                
+                $response = PathaoCourier::order()
+                            ->create($requestData);
+                
+                // Log the response for debugging
+                \Illuminate\Support\Facades\Log::info('Pathao API Response', [
+                    'order_id' => $orderDetails->id,
+                    'response' => $response
+                ]);
+                
+                $responseArray = json_decode(json_encode($response), true);
+                
+                if (isset($responseArray['consignment_id'])) {
+                    $consignmentId = $responseArray['consignment_id'];
+                    $orderDetails->consignmentId = $consignmentId;
+                    $orderDetails->save();
+                    
+                    // Log successful order creation
+                    \Illuminate\Support\Facades\Log::info('Pathao order created successfully', [
+                        'order_id' => $orderDetails->id,
+                        'consignment_id' => $consignmentId
+                    ]);
+                } elseif (isset($responseArray['error']) || isset($responseArray['message'])) {
+                    // Handle API error response
+                    $errorMessage = $responseArray['error'] ?? $responseArray['message'] ?? 'Unknown error from Pathao API';
+                    \Illuminate\Support\Facades\Log::error('Pathao API Error', [
+                        'order_id' => $orderDetails->id,
+                        'error' => $errorMessage,
+                        'response' => $responseArray
+                    ]);
+                    return redirect()->back()->withErrors(['error' => 'Pathao API Error: ' . $errorMessage]);
+                } else {
+                    // Handle unexpected response
+                    \Illuminate\Support\Facades\Log::warning('Unexpected Pathao API Response', [
+                        'order_id' => $orderDetails->id,
+                        'response' => $responseArray
+                    ]);
+                    return redirect()->back()->withErrors(['error' => 'Unexpected response from Pathao API']);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Pathao API Exception', [
+                    'order_id' => $orderDetails->id,
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return redirect()->back()->withErrors(['error' => 'Exception occurred with Pathao API: ' . $e->getMessage()]);
+            }
         }
 
         if($request->courier == 'Steadfast'){
             $orderDetails = Order::find($id);
+            
+            // Validate order exists
+            if (!$orderDetails) {
+                return redirect()->back()->withErrors(['error' => 'Order not found.']);
+            }
+            
+            // Get Steadfast credentials from database settings
+            $generalSetting = \App\Models\GeneralSetting::first();
+            $apiKey = $generalSetting->steadfast_api_key ?? config('steadfast.api_key');
+            $secretKey = $generalSetting->steadfast_secret_key ?? config('steadfast.secret_key');
+            
+            // Validate required fields
+            if (empty($apiKey) || empty($secretKey)) {
+                return redirect()->back()->withErrors(['error' => 'Steadfast API credentials are not configured. Please check your settings.']);
+            }
+            
             // API endpoint
             $apiEndpoint = 'https://portal.steadfast.com.bd/api/v1/create_order';
-
-            // API-Key and Secret-Key
-            $apiKey = '8qu6nounlffw11pxggvtbqqgk6upezhk';
-            $secretKey = 'txy633aumktegztxd3mroe2k';
 
             // The request parameters
             $invoice           = $orderDetails->orderId;
@@ -886,8 +953,7 @@ class ReportController extends Controller
             $recipient_name    = $orderDetails->name;
             $recipient_phone   = $orderDetails->phone;
             $recipient_address = $orderDetails->address;
-            $note              = $orderDetails->note;
-
+            $note              = $request->pathao_special_note ?? $orderDetails->note ?? '';
 
             // The headers
             $headers = [
@@ -904,12 +970,36 @@ class ReportController extends Controller
                 'recipient_phone'   => $recipient_phone,
                 'recipient_address' => $recipient_address,
                 'note'              => $note,
-                // Add any other parameters as needed
             ];
 
             try {
+                // Log the request for debugging
+                \Illuminate\Support\Facades\Log::info('Steadfast API Request', [
+                    'order_id' => $orderDetails->id,
+                    'endpoint' => $apiEndpoint,
+                    'headers' => array_merge($headers, ['Api-Key' => '***', 'Secret-Key' => '***']), // Mask sensitive data
+                    'payload' => $payload
+                ]);
+
                 // Make the API call using GuzzleHttp
-                $response = Http::withHeaders($headers)->post($apiEndpoint, $payload);
+                $response = Http::withHeaders($headers)->timeout(30)->post($apiEndpoint, $payload);
+
+                // Log the response for debugging
+                \Illuminate\Support\Facades\Log::info('Steadfast API Response', [
+                    'order_id' => $orderDetails->id,
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+
+                // Check if the response is successful
+                if (!$response->successful()) {
+                    \Illuminate\Support\Facades\Log::error('Steadfast API HTTP Error', [
+                        'order_id' => $orderDetails->id,
+                        'status' => $response->status(),
+                        'body' => $response->body()
+                    ]);
+                    return redirect()->back()->withErrors(['error' => 'Steadfast API HTTP Error: ' . $response->status()]);
+                }
 
                 // Process the API response as needed
                 $responseData = $response->json();
@@ -922,13 +1012,44 @@ class ReportController extends Controller
                     $orderDetails->consignmentId = $consignmentId;
                     $orderDetails->save();
 
-                    // Do something with $consignmentId or other data
-
-                    // return response()->json($responseData);
+                    // Log successful order creation
+                    \Illuminate\Support\Facades\Log::info('Steadfast order created successfully', [
+                        'order_id' => $orderDetails->id,
+                        'consignment_id' => $consignmentId
+                    ]);
+                } elseif (isset($responseData['error']) || isset($responseData['message'])) {
+                    // Handle API error response
+                    $errorMessage = $responseData['error'] ?? $responseData['message'] ?? 'Unknown error from Steadfast API';
+                    \Illuminate\Support\Facades\Log::error('Steadfast API Error', [
+                        'order_id' => $orderDetails->id,
+                        'error' => $errorMessage,
+                        'response' => $responseData
+                    ]);
+                    return redirect()->back()->withErrors(['error' => 'Steadfast API Error: ' . $errorMessage]);
+                } else {
+                    // Handle unexpected response
+                    \Illuminate\Support\Facades\Log::warning('Unexpected Steadfast API Response', [
+                        'order_id' => $orderDetails->id,
+                        'response' => $responseData
+                    ]);
+                    return redirect()->back()->withErrors(['error' => 'Unexpected response from Steadfast API']);
                 }
             }
+            catch (\Illuminate\Http\Client\ConnectionException $e) {
+                \Illuminate\Support\Facades\Log::error('Steadfast API Connection Error', [
+                    'order_id' => $orderDetails->id,
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return redirect()->back()->withErrors(['error' => 'Connection error with Steadfast API: ' . $e->getMessage()]);
+            }
             catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 500);
+                \Illuminate\Support\Facades\Log::error('Steadfast API Exception', [
+                    'order_id' => $orderDetails->id,
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return redirect()->back()->withErrors(['error' => 'Exception occurred with Steadfast API: ' . $e->getMessage()]);
             }
         }
         //Update Order with pathao details...
@@ -1721,6 +1842,72 @@ class ReportController extends Controller
             $order->save();
 
             // Optionally, you can perform additional actions or logging here
+        }
+
+        // Respond with a success message to the webhook provider
+        return response('Webhook received and processed.', 200);
+    }
+    
+    //Steadfast Webhook Implementation for Order Status....
+    public function webHookForSteadfastOrderStatus (Request $request)
+    {
+        // Parse the JSON payload from the webhook request
+        $payload = json_decode($request->getContent(), true);
+        
+        // Log the webhook payload for debugging
+        \Illuminate\Support\Facades\Log::info('Steadfast Webhook Payload', $payload);
+
+        // Extract relevant data from the payload
+        // Note: Steadfast webhook payload structure may be different from Pathao
+        // This implementation assumes a similar structure, but it should be adjusted
+        // based on the actual Steadfast webhook documentation
+        $consignmentId = $payload['consignment_id'] ?? null;
+        $orderStatus = $payload['status'] ?? $payload['order_status'] ?? null;
+        $merchantOrderId = $payload['invoice'] ?? $payload['merchant_order_id'] ?? null;
+
+        // Find the order in your database by matching merchant_order_id or consignment_id
+        $order = null;
+        if ($merchantOrderId) {
+            $order = Order::where('orderId', $merchantOrderId)->first();
+        } elseif ($consignmentId) {
+            $order = Order::where('consignmentId', $consignmentId)->first();
+        }
+
+        if ($order) {
+            // Update the order status based on the payload order_status
+            // Map Steadfast status to our internal status
+            $statusMapping = [
+                'delivered' => 'delivered',
+                'return' => 'return',
+                'cancelled' => 'cancel',
+                'pending' => 'pending',
+                'processing' => 'processing',
+                // Add more mappings as needed
+            ];
+            
+            $mappedStatus = $statusMapping[strtolower($orderStatus)] ?? $orderStatus;
+            
+            // Update the order with Steadfast status
+            $order->steadfast_order_status = $orderStatus;
+            $order->order_status = $mappedStatus;
+            $order->save();
+
+            // Log the status update
+            \Illuminate\Support\Facades\Log::info('Steadfast Order Status Updated', [
+                'order_id' => $order->id,
+                'consignment_id' => $consignmentId,
+                'status' => $orderStatus,
+                'mapped_status' => $mappedStatus
+            ]);
+
+            // Optionally, you can perform additional actions or logging here
+        } else {
+            // Log if order not found
+            \Illuminate\Support\Facades\Log::warning('Steadfast Webhook: Order not found', [
+                'consignment_id' => $consignmentId,
+                'merchant_order_id' => $merchantOrderId,
+                'payload' => $payload
+            ]);
         }
 
         // Respond with a success message to the webhook provider

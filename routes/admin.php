@@ -256,6 +256,20 @@ Route::group(['middleware' => 'isAdmin'], function(){
     Route::get('/get-zones/{cityId}', [\App\Http\Controllers\Admin\OrderController::class, 'zoneList']);
     //Pathao API Implementation...
 
+    //Courier Settings...
+    Route::get('/courier/settings/pathao', [\App\Http\Controllers\Admin\SettingController::class, 'showPathaoCourier']);
+    Route::post('/courier/settings/pathao/update', [\App\Http\Controllers\Admin\SettingController::class, 'updatePathaoCourier'])->name('pathao.courier.settings.update');
+    Route::get('/courier/settings/steadfast', [\App\Http\Controllers\Admin\SettingController::class, 'showSteadfastCourier']);
+    Route::post('/courier/settings/steadfast/update', [\App\Http\Controllers\Admin\SettingController::class, 'updateSteadfastCourier'])->name('steadfast.courier.settings.update');
+    //Courier Settings...
+    
+    //Courier Management...
+    Route::get('/order/{id}/courier', [\App\Http\Controllers\Admin\OrderController::class, 'courierManagement']);
+    Route::post('/order/{id}/courier/save', [\App\Http\Controllers\Admin\OrderController::class, 'saveCourierInfo']);
+    Route::post('/order/{id}/shipment/create', [\App\Http\Controllers\Admin\OrderController::class, 'createShipment']);
+    Route::get('/order/{id}/shipment/track', [\App\Http\Controllers\Admin\OrderController::class, 'trackShipment']);
+    //Courier Management...
+
     //Expenses...
     Route::get('/expenses', [\App\Http\Controllers\Admin\AdminController::class, 'expenseList']);
     Route::get('/add-expense', [\App\Http\Controllers\Admin\AdminController::class, 'showAddxpenseForm']);

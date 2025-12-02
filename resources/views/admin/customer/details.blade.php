@@ -92,16 +92,22 @@
                                         <textarea name="otherCourierDetails" id="otherCourierDetails" class="form-control">{{ $order->otherCourierDetails }}</textarea>
                                     </div>
                                 </div>
-                                {{-- <div class="col-md-12" id="cityZoneWrapper">
+                                <div class="col-md-12" id="cityZoneWrapper">
                                     <div class="input-group-wrap">
                                         <label for="city">
                                             City
                                         </label>
                                         <select name="city" id="city" class="form-control">
                                             <option selected disabled>-- Select City --</option>
-                                            @foreach ( $cities->data as $city )
-                                            <option value="{{ $city->city_id }}" @if ($order->pathao_city_id == $city->city_id) selected @endif>{{ $city->city_name }}</option>
-                                            @endforeach
+                                            @if(is_array($cities) && count($cities) > 0)
+                                                @foreach ($cities as $city)
+                                                <option value="{{ $city['city_id'] }}" @if ($order->pathao_city_id == $city['city_id']) selected @endif>{{ $city['city_name'] }}</option>
+                                                @endforeach
+                                            @elseif(isset($cities->data))
+                                                @foreach ( $cities->data as $city )
+                                                <option value="{{ $city->city_id }}" @if ($order->pathao_city_id == $city->city_id) selected @endif>{{ $city->city_name }}</option>
+                                                @endforeach
+                                            @endif
                                         </select>
                                     </div>
                                     <input type="hidden" name="city_name" id="city_name">
@@ -119,7 +125,7 @@
                                         </select>
                                     </div>
                                     <input type="hidden" name="zone_name" id="zone_name" value="{{$order->pathao_zone_name}}">
-                                </div> --}}
+                                </div>
                                 <div class="col-md-12">
                                     <div class="input-group-wrap">
                                         <label for="pathao_special_note">
@@ -404,22 +410,30 @@
             const citySelect = document.getElementById("city");
             const zoneSelect = document.getElementById("zone");
 
-            citySelect.addEventListener("change", function() {
-                const selectedCityId = this.value;
+            // Function to fetch zones for a selected city
+            function fetchZones(selectedCityId) {
                 if (selectedCityId) {
                     fetch(`/get-zones/${selectedCityId}`)
                         .then(response => response.json())
                         .then(data => {
-                            const zonesData = data.zones.data;
-
+                            // Handle both cases: when zones is an array (no credentials) or object (with credentials)
+                            let zonesData = [];
+                            if (Array.isArray(data.zones)) {
+                                // When no credentials, zones is an empty array
+                                zonesData = data.zones;
+                            } else if (data.zones && data.zones.data) {
+                                // When credentials exist, zones is an object with data property
+                                zonesData = data.zones.data;
+                            }
+                            
                             // Clear existing options
                             zoneSelect.innerHTML = '<option selected disabled>-- Select Zone --</option>';
-
+                            
                             // Add new zone options
                             zonesData.forEach(zone => {
                                 const option = document.createElement("option");
-                                option.value = zone.zone_id;
-                                option.textContent = zone.zone_name;
+                                option.value = zone.zone_id || zone['zone_id'];
+                                option.textContent = zone.zone_name || zone['zone_name'];
                                 zoneSelect.appendChild(option);
                             });
                         })
@@ -428,7 +442,18 @@
                     // Reset zone select if no city is selected
                     zoneSelect.innerHTML = '<option selected disabled>-- Select Zone --</option>';
                 }
+            }
+
+            citySelect.addEventListener("change", function() {
+                const selectedCityId = this.value;
+                fetchZones(selectedCityId);
             });
+            
+            // Auto-fetch zones if a city is already selected on page load
+            const initialSelectedCity = citySelect.value;
+            if (initialSelectedCity) {
+                fetchZones(initialSelectedCity);
+            }
         });
         //Code for fetching zone list....
 

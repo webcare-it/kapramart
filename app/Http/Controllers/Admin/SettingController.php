@@ -14,7 +14,7 @@ use App\Models\TermsCondition;
 use Codeboxr\PathaoCourier\Facade\PathaoCourier;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
-use File;
+use Illuminate\Support\Facades\File;
 
 class SettingController extends Controller
 {
@@ -175,7 +175,21 @@ class SettingController extends Controller
     }
 
     public function showPathaoCourier(){
-        return view('admin.settings.pathao-courier');
+        $general_setting = GeneralSetting::first();
+        return view('admin.settings.pathao-courier', compact('general_setting'));
+    }
+
+    public function updatePathaoCourier(Request $request)
+    {
+        $general_setting = GeneralSetting::first();
+        $general_setting->pathao_client_id = $request->pathao_client_id;
+        $general_setting->pathao_client_secret = $request->pathao_client_secret;
+        $general_setting->pathao_username = $request->pathao_username;
+        $general_setting->pathao_password = $request->pathao_password;
+        $general_setting->pathao_sandbox = $request->has('pathao_sandbox') ? true : false;
+        $general_setting->save();
+
+        return redirect()->back()->withSuccess('Pathao settings updated successfully!');
     }
 
     public function pathaoCourierStore(Request $request)
@@ -227,6 +241,22 @@ class SettingController extends Controller
     {
         $general_setting = GeneralSetting::first();
         return view('admin.general_setting.index', compact('general_setting'));
+    }
+
+    public function showSteadfastCourier()
+    {
+        $general_setting = GeneralSetting::first();
+        return view('admin.settings.steadfast-courier', compact('general_setting'));
+    }
+
+    public function updateSteadfastCourier(Request $request)
+    {
+        $general_setting = GeneralSetting::first();
+        $general_setting->steadfast_api_key = $request->steadfast_api_key;
+        $general_setting->steadfast_secret_key = $request->steadfast_secret_key;
+        $general_setting->save();
+
+        return redirect()->back()->withSuccess('Steadfast settings updated successfully!');
     }
 
     public function updateGeneralSetting (Request $request)

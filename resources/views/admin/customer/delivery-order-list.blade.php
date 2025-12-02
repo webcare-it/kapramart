@@ -1,6 +1,7 @@
 @extends('admin.master')
 
 @include('admin.includes.action-css')
+@include('admin.includes.error-bypass')
 
 @section('content')
 <div class="page-wrapper">

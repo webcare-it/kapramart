@@ -1,6 +1,7 @@
 @extends('admin.master')
 
 @include('admin.includes.action-css')
+@include('admin.includes.error-bypass')
 
 @section('content')
     <div class="page-wrapper">
@@ -86,93 +87,133 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                                
-                                                @foreach ($all_orders as $order)
-                                                    <tr>
-                                                        <td>
-                                                            @if($order->order_status != null)
-                                                                <input type="checkbox" name="id[]" id="id{{ $order->id }}" value="{{ $order->id }}" />
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $loop->index+1 }}</td>
-                                                        <td>
-                                                            @if ($order->is_dropshipping==true)
-                                                                <span class="badge rounded-pill bg-success">Yes</span>
-                                                            @else
-                                                                <span class="badge rounded-pill bg-warning">No</span>    
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <img src="{{ asset('/product/images/'.$order->orderDetails[0]->product?->image) }}" alt="product image" height="50" width="50" />
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-info" style="font-size: 12px; color: black">{{env('APP_NAME')}}</span><br/>
-                                                            <span style="font-size: 16px; font-weight:600;">{{ $order->orderId ?? 'No order id found' }}</span><br/>
-                                                            <span class="badge rounded-pill bg-primary">{{ $order->order_type }}</span> <br/>
+                                            
+                                            @foreach ($all_orders as $order)
+                                                <tr>
+                                                    <td>
+                                                        @if($order->order_status != null)
+                                                            <input type="checkbox" name="id[]" id="id{{ $order->id }}" value="{{ $order->id }}" />
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $loop->index+1 }}</td>
+                                                    <td>
+                                                        @if ($order->is_dropshipping==true)
+                                                            <span class="badge rounded-pill bg-success">Yes</span>
+                                                        @else
+                                                            <span class="badge rounded-pill bg-warning">No</span>    
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if(isset($order->orderDetails[0]) && isset($order->orderDetails[0]->product) && isset($order->orderDetails[0]->product->image))
+                                                            <img src="{{ asset('/product/images/'.$order->orderDetails[0]->product->image) }}" alt="product image" height="50" width="50" onerror="this.style.display='none'"/>
+                                                        @else
+                                                            <div class="bg-secondary" style="width: 50px; height: 50px;"></div>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info" style="font-size: 12px; color: black">{{env('APP_NAME')}}</span><br/>
+                                                        <span style="font-size: 16px; font-weight:600;">
+                                                            {{ $order->orderId ?? 'No order id found' }}
+                                                        </span><br/>
+                                                        <span class="badge rounded-pill bg-primary">
+                                                            {{ $order->order_type ?? 'Unknown' }}
+                                                        </span> <br/>
+                                                        @if(isset($order->created_at))
                                                             {{ $order->created_at->diffForHumans() }}
-                                                        </td>
-                                                        <td>
-                                                            {{ $order->name?? 'No name found' }}<br/>
-                                                            <span style="color: green">{{ $order->phone?? 'No phone found' }}</span><br/>
-                                                            {{ substr($order->address,0,70)?? 'No address found' }} <br/>
+                                                        @else
+                                                            Date unknown
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        {{ $order->name ?? 'No name found' }}<br/>
+                                                        <span style="color: green">{{ $order->phone ?? 'No phone found' }}</span><br/>
+                                                        {{ substr($order->address ?? 'No address found', 0, 70) }} <br/>
+                                                        @if(isset($order->customer_type))
                                                             <span class="badge rounded-pill {{ $order->customer_type == 'Old Customer' ? 'bg-danger' : 'bg-success' }}">{{ $order->customer_type }}</span> <br/>
-                                                        </td>
-                                                        <td>
+                                                        @else
+                                                            <span class="badge rounded-pill bg-secondary">Unknown</span> <br/>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if(isset($order->orderDetails))
                                                             @foreach ($order->orderDetails as $details)
-                                                                {{ $order->qty?? ' ' }}X {{ $details->product?->name }}<br/>
-                                                                {{ 'Size: ' . $details->size?? '' }} | {{ 'Color: ' . $details->color?? '' }}
+                                                                @if(isset($order->qty) && isset($details->product) && isset($details->product->name))
+                                                                    {{ $order->qty }}X {{ $details->product->name }}<br/>
+                                                                @else
+                                                                    Product name unavailable<br/>
+                                                                @endif
+                                                                @if(isset($details->size) || isset($details->color))
+                                                                    {{ 'Size: ' . ($details->size ?? '') }} | {{ 'Color: ' . ($details->color ?? '') }}
+                                                                @else
+                                                                    Size/Color info unavailable
+                                                                @endif
                                                             @endforeach
-                                                        </td>
-                                                        <td>
-                                                            <b>Amount :</b> {{ $order->price }} Tk. <br/>
-                                                            <b>Delivery :</b> {{ $order->area }} Tk.
-                                                        </td>
-                                                        <td>
-                                                            <div class="action-dropdown-menu">
-                                                                <a href="javascript:;" class="action-dropdown-link">
-                                                                    {{ucfirst($order->order_status)}}
-                                                                </a>
-                                                                <ul class="action-btn-list">
-                                                                    <li class="action-btn-list-item">
-                                                                        <a href="{{url('/status/hold/form/'.$order->id)}}" class="action-btn-link">
-                                                                            On Hold
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="action-btn-list-item">
-                                                                        <a href="{{url('/status/pending-payment/'.$order->id)}}" class="action-btn-link">
-                                                                            Pending Payment
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="action-btn-list-item">
-                                                                        <a href="{{ url('/order/schedule-delivery/status/' . $order->id) }}"
-                                                                            class="action-btn-link">
-                                                                            Schedule Delivery
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="action-btn-list-item">
-                                                                        <a href="{{url('/status/cancel/form/'.$order->id)}}" class="action-btn-link">
-                                                                            Cancel
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="action-btn-list-item">
-                                                                        <a href="{{url('/status/complete/'.$order->id)}}" class="action-btn-link">
-                                                                            Complete
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </td>
-                                                        <td>{{ date('d-m-Y', strtotime($order->created_at)) }}</td>
-                                                        <td>{{ Str::ucfirst($order->admin?->name) }}</td>
-                                                        <td>
-                                                            @if ($order->is_dropshipping == true)
-                                                            <a href="{{ url('/dropshipping-order/view/' . $order->id) }}" class="btn btn-sm btn-info">Edit</a>
-                                                            @else
-                                                            <a href="{{ url('/order/view/' . $order->id) }}" class="btn btn-sm btn-info">Edit</a>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
+                                                        @else
+                                                            Order details unavailable
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <b>Amount :</b> {{ $order->price ?? 'N/A' }} Tk. <br/>
+                                                        <b>Delivery :</b> {{ $order->area ?? 'N/A' }} Tk.
+                                                    </td>
+                                                    <td>
+                                                        <div class="action-dropdown-menu">
+                                                            <a href="javascript:;" class="action-dropdown-link">
+                                                                {{ ucfirst($order->order_status ?? 'Status unknown') }}
+                                                            </a>
+                                                            <ul class="action-btn-list">
+                                                                <li class="action-btn-list-item">
+                                                                    <a href="{{url('/status/hold/form/'.$order->id)}}" class="action-btn-link">
+                                                                        On Hold
+                                                                    </a>
+                                                                </li>
+                                                                <li class="action-btn-list-item">
+                                                                    <a href="{{url('/status/pending-payment/'.$order->id)}}" class="action-btn-link">
+                                                                        Pending Payment
+                                                                    </a>
+                                                                </li>
+                                                                <li class="action-btn-list-item">
+                                                                    <a href="{{ url('/order/schedule-delivery/status/' . $order->id) }}"
+                                                                        class="action-btn-link">
+                                                                        Schedule Delivery
+                                                                    </a>
+                                                                </li>
+                                                                <li class="action-btn-list-item">
+                                                                    <a href="{{url('/status/cancel/form/'.$order->id)}}" class="action-btn-link">
+                                                                        Cancel
+                                                                    </a>
+                                                                </li>
+                                                                <li class="action-btn-list-item">
+                                                                    <a href="{{url('/status/complete/'.$order->id)}}" class="action-btn-link">
+                                                                        Complete
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if(isset($order->created_at))
+                                                            {{ date('d-m-Y', strtotime($order->created_at)) }}
+                                                        @else
+                                                            Date unknown
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if(isset($order->admin) && isset($order->admin->name))
+                                                            {{ Str::ucfirst($order->admin->name) }}
+                                                        @else
+                                                            Admin unknown
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($order->is_dropshipping == true)
+                                                        <a href="{{ url('/dropshipping-order/view/' . $order->id) }}" class="btn btn-sm btn-info">Edit</a>
+                                                        @else
+                                                        <a href="{{ url('/order/view/' . $order->id) }}" class="btn btn-sm btn-info">Edit</a>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                     {{$all_orders->links()}}

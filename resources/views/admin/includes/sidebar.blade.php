@@ -531,6 +531,16 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url('/courier/settings/pathao') }}">
+                    <i class="bx bx-right-arrow-alt"></i>Pathao Credentials
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('/courier/settings/steadfast') }}">
+                    <i class="bx bx-right-arrow-alt"></i>Steadfast Credentials
+                </a>
+            </li>
+            <li>
                 <a href="{{ url('/admin/gtm') }}">
                     <i class="bx bx-right-arrow-alt"></i>Google Tag manager
                 </a>
