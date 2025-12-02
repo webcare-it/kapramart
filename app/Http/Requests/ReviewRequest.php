@@ -24,7 +24,8 @@ class ReviewRequest extends FormRequest
     public function rules()
     {
         return [
-            'rating' => 'required|integer'
+            'rating' => 'required|integer',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ];
     }
 }

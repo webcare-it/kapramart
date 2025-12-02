@@ -26,6 +26,7 @@
                                             <th width="5%">Rating</th>
                                             <th width="20%">Address</th>
                                             <th width="20%">Message</th>
+                                            <th width="10%">Photo</th>
                                             <th width="20%">Action</th>
                                         </tr>
                                     </thead>
@@ -39,6 +40,13 @@
                                                 <td>{{ $productReview->rating }}</td>
                                                 <td>{{ $productReview->address }}</td>
                                                 <td>{{ $productReview->message }}</td>
+                                                <td>
+                                                    @if($productReview->photo)
+                                                        <img src="{{ asset('reviews/' . $productReview->photo) }}" alt="Review Photo" style="max-width: 50px; max-height: 50px;">
+                                                    @else
+                                                        No Photo
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <a href="{{ url('/admin/customer/review/edit/'.$productReview->id) }}" class="btn btn-sm btn-info">Edit</a>
                                                     <a href="{{ url('/admin/customer/review/delete/'.$productReview->id) }}" class="btn btn-sm btn-danger">Delete</a>

@@ -130,12 +130,12 @@
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="pills-review-tab" data-bs-toggle="pill" data-bs-target="#pills-review" type="button" role="tab" aria-controls="pills-review" aria-selected="true">
+                                        <button class="nav-link" id="pills-reviewss-tab" data-bs-toggle="pill" data-bs-target="#pills-review" type="button" role="tab" aria-controls="pills-review" aria-selected="false">
                                             Review
                                         </button>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="pills-policy-tab" data-bs-toggle="pill" data-bs-target="#pills-policy" type="button" role="tab" aria-controls="pills-policy" aria-selected="true">
+                                        <button class="nav-link" id="pills-policy-tab" data-bs-toggle="pill" data-bs-target="#pills-policy" type="button" role="tab" aria-controls="pills-policy" aria-selected="false">
                                             Product Policy
                                         </button>
                                     </li>
@@ -176,30 +176,38 @@
                                         </div>
                                         @endif
                                     </div>
-                                    <div class="tab-pane fade" id="pills-review" role="tabpanel" aria-labelledby="pills-review-tab">
+                                    <div class="tab-pane fade" id="pills-review" role="tabpanel" aria-labelledby="pills-reviewss-tab">
                                         @foreach ($details->reviews as $review)
                                         <div class="review-item-wrapper">
-                                            <div class="review-item-left">
-                                                <i class="fas fa-user"></i>
-                                            </div>
+                                            
                                             <div class="review-item-right">
                                                 <h4 class="review-author-name">
                                                     {{$review->name}}
                                                     <span class=" d-inline bg-danger badge-sm badge text-white">Verified</span>
                                                 </h4>
                                                 <p class="review-item-message">
-                                                    {!!$review->message!!}
+                                                    {{$review->message}}
                                                 </p>
                                                 <span class="review-item-rating-stars">
-                                                    <i class="fa-star fas"></i>
-                                                    <i class="fa-star fas"></i>
-                                                    <i class="fa-star fas"></i>
-                                                    <i class="fa-star fas"></i>
-                                                    <i class="fa-star fas"></i>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        @if ($i <= $review->rating)
+                                                            <i class="fa-star fas"></i>
+                                                        @else
+                                                            <i class="fa-star far"></i>
+                                                        @endif
+                                                    @endfor
                                                 </span>
+                                                @if($review->photo)
+                                                <div class="review-photo mt-2">
+                                                    <img src="{{ asset('reviews/' . $review->photo) }}" alt="Review Photo" style="max-width: 70%; height: auto; border-radius: 5px;">
+                                                </div>
+                                                @endif
                                             </div>
+                                            
                                         </div>
                                         @endforeach
+                                        
+                                       
                                     </div>
                                     <div class="tab-pane fade" id="pills-policy" role="tabpanel" aria-labelledby="pills-policy-tab">
                                         {!!$details->policy!!}
@@ -344,6 +352,8 @@
         // Set a data attribute to track which action was taken
         this.setAttribute('data-action', action);
     });
+    
+    
 </script>
 
 <script>

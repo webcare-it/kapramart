@@ -48,6 +48,11 @@
                                     <span style="color: red"> {{ $errors->has('address') ? $errors->first('address') : ' ' }}</span>
                                 </div>
                                 <div class="form-group">
+                                    <label>Photo</label>
+                                    <input type="file" name="photo" class="form-control">
+                                    <span style="color: red"> {{ $errors->has('photo') ? $errors->first('photo') : ' ' }}</span>
+                                </div>
+                                <div class="form-group">
                                     <label>Message</label>
                                     <textarea class="form-control" name="message" rows="6" placeholder="Enter message"></textarea>
                                     <span style="color: red"> {{ $errors->has('message') ? $errors->first('message') : ' ' }}</span>

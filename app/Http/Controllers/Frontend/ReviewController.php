@@ -7,22 +7,46 @@ use App\Http\Requests\ReviewRequest;
 use App\Models\Review;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 class ReviewController extends Controller
 {
     public function productReview(ReviewRequest $request)
     {
         try{
+            $photoName = null;
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                $photoName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
+                $destinationPath = public_path('reviews');
+                
+                // Create directory if it doesn't exist
+                if (!File::exists($destinationPath)) {
+                    File::makeDirectory($destinationPath, 0755, true);
+                }
+                
+                // Resize and save image
+                $img = Image::make($photo->getRealPath());
+                $img->resize(800, 600, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $img->save($destinationPath . '/' . $photoName);
+            }
 
             $rating = new Review();
             $rating->user_id = auth()->user()->id;
             $rating->product_id = $request->product_id;
             $rating->rating = $request->rating;
             $rating->message = $request->message;
+            $rating->photo = $photoName;
             $rating->save();
+            
             return response()->json([
                 'status' => true,
-                'message' => 'Rating has been successfully submited.'
+                'message' => 'Rating has been successfully submitted.'
             ]);
 
         }catch(Exception $exception){
@@ -41,7 +65,6 @@ class ReviewController extends Controller
         foreach($productReviewCount as $reviewCount){
             $total += $reviewCount->rating;
         }
-
         if($totalRevCount > 0){
             $avgRating = round($total/$totalRevCount, 2);
         }else{
@@ -49,21 +72,21 @@ class ReviewController extends Controller
         }
         return $avgRating;
     }
+
     public function productDetailsReview($product_id)
     {
-        $productDetailsReview = Review::where('product_id', $product_id)->get();
+        $productReviewCount = Review::where('product_id', $product_id)->get();
         $total = 0;
-        $totalRevCount = count($productDetailsReview);
-        foreach($productDetailsReview as $reviewCount){
+        $totalRevCount = count($productReviewCount);
+        foreach($productReviewCount as $reviewCount){
             $total += $reviewCount->rating;
         }
-
         if($totalRevCount > 0){
             $avgRating = round($total/$totalRevCount, 2);
         }else{
             $avgRating = 0;
         }
-        return round($avgRating);
+        return $avgRating;
     }
 
     public function fiveStarRating($product_id)
@@ -83,6 +106,7 @@ class ReviewController extends Controller
         }
         return $avgFiveRating;
     }
+
     public function fourStarRating($product_id)
     {
         $fourStarRatingCount = Review::where('rating', 4)->where('product_id', $product_id)->get();
@@ -100,6 +124,7 @@ class ReviewController extends Controller
         }
         return $avgFourRating;
     }
+
     public function threeStarRating($product_id)
     {
         $threeStarRatingCount = Review::where('rating', 3)->where('product_id', $product_id)->get();
@@ -117,6 +142,7 @@ class ReviewController extends Controller
         }
         return $avgThreeRating;
     }
+
     public function twoStarRating($product_id)
     {
         $twoStarRatingCount = Review::where('rating', 2)->where('product_id', $product_id)->get();
@@ -133,6 +159,7 @@ class ReviewController extends Controller
         }
         return $avgTwoRating;
     }
+    
     public function oneStarRating($product_id)
     {
         $oneStarRatingCount = Review::where('rating', 1)->where('product_id', $product_id)->get();

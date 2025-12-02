@@ -48,6 +48,17 @@
                                     <span style="color: red"> {{ $errors->has('address') ? $errors->first('address') : ' ' }}</span>
                                 </div>
                                 <div class="form-group">
+                                    <label>Photo</label>
+                                    <input type="file" name="photo" class="form-control">
+                                    @if($productReview->photo)
+                                        <div class="mt-2">
+                                            <p>Current Photo:</p>
+                                            <img src="{{ asset('reviews/' . $productReview->photo) }}" alt="Review Photo" style="max-width: 200px; max-height: 200px;">
+                                        </div>
+                                    @endif
+                                    <span style="color: red"> {{ $errors->has('photo') ? $errors->first('photo') : ' ' }}</span>
+                                </div>
+                                <div class="form-group">
                                     <label>Message</label>
                                     <textarea class="form-control" name="message" rows="6" placeholder="Enter message">{{ $productReview->message }}</textarea>
                                     <span style="color: red"> {{ $errors->has('message') ? $errors->first('message') : ' ' }}</span>

@@ -153,6 +153,9 @@
                         <li class="nav-item my-1">
                             <button class=" order-btn text-white rounded-pill" data-bs-toggle="pill" data-bs-target="#descriptionTab">Description</button>
                         </li>
+                        <li class="nav-item my-1">
+                            <button class=" order-btn text-white rounded-pill" data-bs-toggle="pill" data-bs-target="#reviewTab">Reviews</button>
+                        </li>
                         {{-- <li class="nav-item my-1">
                             <button class="nav-link bg-gray-200 rounded-pill" data-bs-toggle="pill" data-bs-target="#policyTab">Product Policy</button>
                         </li> --}}
@@ -193,6 +196,40 @@
                                 </div>
                             </div>
                             @endif
+                        </div>
+                        <!-- Review Tab Content -->
+                        <div class="tab-pane fade my-4" id="reviewTab">
+                            @foreach ($details->reviews as $review)
+                            <div class="review-item-wrapper">
+                                
+                                <div class="review-item-right">
+                                    <h4 class="review-author-name">
+                                        {{$review->name}}
+                                        <span class=" d-inline bg-danger badge-sm badge text-white">Verified</span>
+                                    </h4>
+                                    <p class="review-item-message">
+                                        {{$review->message}}
+                                    </p>
+                                    <span class="review-item-rating-stars">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= $review->rating)
+                                                    <i class="fa-star fas"></i>
+                                                @else
+                                                    <i class="fa-star far"></i>
+                                                @endif
+                                            @endfor
+                                        </span>
+                                </div>
+                                <div class="review-item-left">
+                                    <i class="fas fa-user"></i>
+                                    @if($review->photo)
+                                    <div class="review-photo mt-2">
+                                        <img src="{{ asset('reviews/' . $review->photo) }}" alt="Review Photo" style="max-width: 80px; max-height: 80px; border-radius: 5px;">
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                         {{-- <!-- policy tab -->
                         <div class="tab-pane fade my-4" id="policyTab">
@@ -253,10 +290,5 @@
           document.getElementById('addToCartForm').submit();
       }
   </script>
-  <script>
-      // Function to set the value of the hidden input based on the clicked button
-      function setButtonAction(action) {
-          document.getElementById('buttonAction').value = action;
-      }
-  </script>
+
 @endpush

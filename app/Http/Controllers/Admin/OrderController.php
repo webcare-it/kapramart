@@ -1,19 +1,26 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use App\Exports\OrdersExport;
+
 use App\Http\Controllers\Controller;
-use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Product;
 use App\Models\Review;
-use App\Models\Notification;
+use App\Models\User;
+use App\Models\District;
+use App\Models\SubDistrict;
+use App\Models\Courier;
 use Codeboxr\PathaoCourier\Facade\PathaoCourier;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use Maatwebsite\Excel\Facades\Excel;
-use PDF;
 use Session;
+use App\Exports\OrdersExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class OrderController extends Controller
 {
@@ -228,7 +235,28 @@ class OrderController extends Controller
             'name' => 'required|string|max:191',
             'product_id' => 'required',
             'rating' => 'required',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
+
+        $photoName = null;
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
+            $destinationPath = public_path('reviews');
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true);
+            }
+            
+            // Resize and save image
+            $img = Image::make($photo->getRealPath());
+            $img->resize(800, 600, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $img->save($destinationPath . '/' . $photoName);
+        }
 
         Review::create([
             'name' => $request->name,
@@ -237,19 +265,50 @@ class OrderController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'message' => $request->message,
+            'photo' => $photoName
         ]);
+        
         $this->setSuccessMessage('Customer review has been created');
         return redirect()->back();
     }
+    
     public function customerReviewUpdate(Request $request, $id)
     {
         $this->validate($request, [
             'name' => 'required|string|max:191',
             'product_id' => 'required',
             'rating' => 'required',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $review = Review::find($id);
+
+        $photoName = $review->photo; // Keep existing photo by default
+        
+        // Handle photo upload if a new photo is provided
+        if ($request->hasFile('photo')) {
+            // Delete old photo if it exists
+            if ($review->photo && File::exists(public_path('reviews/' . $review->photo))) {
+                File::delete(public_path('reviews/' . $review->photo));
+            }
+            
+            $photo = $request->file('photo');
+            $photoName = time() . '_' . Str::random(10) . '.' . $photo->getClientOriginalExtension();
+            $destinationPath = public_path('reviews');
+            
+            // Create directory if it doesn't exist
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true);
+            }
+            
+            // Resize and save image
+            $img = Image::make($photo->getRealPath());
+            $img->resize(800, 600, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $img->save($destinationPath . '/' . $photoName);
+        }
 
         $review->update([
             'name' => $request->name,
@@ -258,7 +317,9 @@ class OrderController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'message' => $request->message,
+            'photo' => $photoName
         ]);
+        
         $this->setSuccessMessage('Customer review has been updated');
         return redirect()->back();
     }
