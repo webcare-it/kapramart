@@ -91,7 +91,7 @@
                                                     </a>
                                                 </div>
                                                 <div>
-                                                    <button type="submit" name="action" value="addToCart" class="cart-btn-inner">
+                                                    <button type="submit" name="action" value="addToCart" class="cart-btn-inner" onclick="return handleAddToCart(event)">
                                                         <i class="fas fa-shopping-cart"></i>
                                                         Add to Cart
                                                     </button>
@@ -343,16 +343,45 @@
         });
     });
     
-    // Simple form submission without preventing default
-    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
-        // Get the submit button that was clicked
-        var submitButton = document.activeElement;
-        var action = submitButton ? submitButton.value : 'addToCart';
+    // Handle add to cart event for datalayer
+    function handleAddToCart(event) {
+        event.preventDefault();
         
-        // Set a data attribute to track which action was taken
-        this.setAttribute('data-action', action);
-    });
-    
+        var product_name = document.getElementById('product_name').value;
+        var price = document.getElementById('price').value;
+        var product_id = document.getElementById('product_id').value;
+        var category = document.getElementById('category').value;
+        var qty = document.getElementById('qty').value;
+        
+        dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            ecommerce: null
+        });
+        dataLayer.push({
+            event: "add_to_cart",
+            ecommerce: {
+                items: [{
+                    item_name: product_name,
+                    item_id: product_id,
+                    price: price,
+                    item_brand: "Unknown",
+                    item_category: category,
+                    item_variant: "",
+                    item_list_name: "",
+                    item_list_id: "",
+                    index: 0,
+                    quantity: parseInt(qty)
+                }]
+            }
+        });
+        
+        // Submit the form after a short delay to ensure datalayer is pushed
+        setTimeout(function() {
+            document.getElementById('addToCartForm').submit();
+        }, 100);
+        
+        return false;
+    }
     
 </script>
 

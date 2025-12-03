@@ -131,10 +131,16 @@
                             <div class="my-4 gap-3 font-medium">
                                 <input type="hidden" name="button_action" id="buttonAction" value="">
                                 <div class="my-2">
-                                    <button onclick="setButtonAction('buyNow')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
+                                    <button onclick="handleAddToCart('buyNow')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
                                         <i class="fa-solid fa-truck"></i> Order Now
                                     </button>
                                 </div>
+                            </div>
+
+                            <div class="my-2">
+                                <button onclick="handleAddToCart('addToCart')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
+                                    <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                                </button>
                             </div>
 
                             <div class="">
@@ -240,6 +246,13 @@
             </div>
         </div>
     </section>
+    
+    <div style="display: none">
+        <input type="text" id="product_name" value="{{ $details->name }}">
+        <input type="text" id="price" value="{{ $details->regular_price }}">
+        <input type="text" id="product_id" value="{{ $details->id }}">
+        <input type="text" id="category" value="{{ $details->category->name ?? 'Unknown' }}">
+    </div>
 @endsection
 
 @push('script')
@@ -257,38 +270,55 @@
    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script> --}}
 
     <script>
-      function onSubmitForm(event) {
-          event.preventDefault();
-
-          var product_name = document.getElementById('product_name').value;
-          var price = document.getElementById('price').value;
-          var product_id = document.getElementById('product_id').value;
-          var category = document.getElementById('category').value;
-
-          dataLayer = window.dataLayer || [];
-
-          dataLayer.push({
-              ecommerce: null
-          });
-          dataLayer.push({
-              event: "add_to_cart",
-              ecommerce: {
-                  items: [{
-                      item_name: product_name,
-                      item_id: product_id,
-                      price: price,
-                      item_brand: "Unknown",
-                      item_category: category,
-                      item_variant: "",
-                      item_list_name: "",
-                      item_list_id: "",
-                      index: 0,
-                      quantity: 1,
-                  }]
-              }
-          });
-          document.getElementById('addToCartForm').submit();
-      }
-  </script>
-
+        // Handle add to cart event for datalayer
+        function handleAddToCart(action) {
+            var product_name = document.getElementById('product_name').value;
+            var price = document.getElementById('price').value;
+            var product_id = document.getElementById('product_id').value;
+            var category = document.getElementById('category').value;
+            var qty = document.getElementById('inputQty').value;
+            
+            // Set the action value in the hidden input
+            document.getElementById('buttonAction').value = action;
+            
+            dataLayer = window.dataLayer || [];
+            dataLayer.push({
+                ecommerce: null
+            });
+            dataLayer.push({
+                event: "add_to_cart",
+                ecommerce: {
+                    items: [{
+                        item_name: product_name,
+                        item_id: product_id,
+                        price: price,
+                        item_brand: "Unknown",
+                        item_category: category,
+                        item_variant: "",
+                        item_list_name: "",
+                        item_list_id: "",
+                        index: 0,
+                        quantity: parseInt(qty)
+                    }]
+                }
+            });
+            
+            // Submit the form after a short delay to ensure datalayer is pushed
+            setTimeout(function() {
+                document.getElementById('addToCartForm').submit();
+            }, 100);
+        }
+        
+        // Existing functions from the original file
+        function ProductColor(color) {
+            document.getElementById("inputcolor").value = color;
+            document.getElementById("size").classList.remove("hidden");
+        }
+        
+        function productSize(price, size) {
+            document.getElementById("inputsize").value = size;
+            document.getElementById("inputPrice").value = price;
+            document.getElementById("price").innerHTML = price;
+        }
+    </script>
 @endpush

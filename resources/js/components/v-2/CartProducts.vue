@@ -122,7 +122,7 @@ import cartRow from './CartRow.vue'
         },
 		components: {
 			cartRow,
-		},
+	},
 
 		mounted() {
 			this.authUserProducts();
@@ -193,6 +193,30 @@ import cartRow from './CartRow.vue'
                 })
             },
             addToCart(related){
+                // Push to datalayer
+                if (typeof dataLayer !== 'undefined') {
+                    dataLayer.push({
+                        ecommerce: null
+                    });
+                    dataLayer.push({
+                        event: "add_to_cart",
+                        ecommerce: {
+                            items: [{
+                                item_name: related.name,
+                                item_id: related.id,
+                                price: related.discount_price ? related.discount_price : related.regular_price,
+                                item_brand: "Unknown",
+                                item_category: related.category ? related.category.name : "Unknown",
+                                item_variant: "",
+                                item_list_name: "Related Products",
+                                item_list_id: "related_products",
+                                index: 0,
+                                quantity: 1
+                            }]
+                        }
+                    });
+                }
+                
                 if(related.discount_price == null){
                     axios.post('/add/to/cart/' + related.id,{
                         product_id: related.id,
