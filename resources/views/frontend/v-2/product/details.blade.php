@@ -91,11 +91,11 @@
                                                     </a>
                                                 </div>
                                                 <div>
-                                                    <button type="button" name="action" value="addToCart" class="cart-btn-inner" onclick="return handleAddToCart(event)">
+                                                    <button type="submit" name="action" value="addToCart" class="cart-btn-inner">
                                                         <i class="fas fa-shopping-cart"></i>
                                                         Add to Cart
                                                     </button>
-                                                    <button type="button" name="action" value="buyNow" class="cart-btn-inner" onclick="return handleBuyNow(event)">
+                                                    <button type="submit" name="action" value="buyNow" class="cart-btn-inner">
                                                         <i class="fas fa-truck"></i>
                                                         Order Now
                                                     </button>
