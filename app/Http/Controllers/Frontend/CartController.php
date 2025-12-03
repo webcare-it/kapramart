@@ -24,12 +24,18 @@ class CartController extends Controller
         $currentCartProduct = Product::find($product->id);
 
         if($cartProducts->count()>0){
-            if($lastCartProduct->product->b_product_id == null && $currentCartProduct->b_product_id != null){
+            // Check if lastCartProduct and its product exist before accessing b_product_id
+            $lastCartProductBProductId = null;
+            if ($lastCartProduct && $lastCartProduct->product) {
+                $lastCartProductBProductId = $lastCartProduct->product->b_product_id;
+            }
+            
+            if($lastCartProductBProductId == null && $currentCartProduct->b_product_id != null){
                 foreach($cartProducts as $cart){
                     $cart->delete();
                 }
             }
-            elseif($lastCartProduct->product->b_product_id != null && $currentCartProduct->b_product_id == null){
+            elseif($lastCartProductBProductId != null && $currentCartProduct->b_product_id == null){
                 foreach($cartProducts as $cart){
                     $cart->delete();
                 }
@@ -75,6 +81,15 @@ class CartController extends Controller
                 }
             }
 
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product has been successfully added to cart.',
+                    'redirect' => false
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Product has been successfully added to cart.');
         }
 
@@ -113,6 +128,15 @@ class CartController extends Controller
                 }
             }
 
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product has been successfully added to cart.',
+                    'redirect' => '/checkout'
+                ]);
+            }
+
             return redirect('/checkout')->with('success', 'Product has been successfully added to cart.');
         }
     }
@@ -126,12 +150,18 @@ class CartController extends Controller
         $currentCartProduct = Product::find($id);
 
         if($cartProducts->count()>0){
-            if($lastCartProduct->product->b_product_id == null && $currentCartProduct->b_product_id != null){
+            // Check if lastCartProduct and its product exist before accessing b_product_id
+            $lastCartProductBProductId = null;
+            if ($lastCartProduct && $lastCartProduct->product) {
+                $lastCartProductBProductId = $lastCartProduct->product->b_product_id;
+            }
+            
+            if($lastCartProductBProductId == null && $currentCartProduct->b_product_id != null){
                 foreach($cartProducts as $cart){
                     $cart->delete();
                 }
             }
-            elseif($lastCartProduct->product->b_product_id != null && $currentCartProduct->b_product_id == null){
+            elseif($lastCartProductBProductId != null && $currentCartProduct->b_product_id == null){
                 foreach($cartProducts as $cart){
                     $cart->delete();
                 }
@@ -171,6 +201,16 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
+            
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product has been successfully added to cart.',
+                    'redirect' => false
+                ]);
+            }
+            
             return redirect()->back()->with('success', 'Product has been successfully added to cart.');
         }
 
@@ -204,6 +244,16 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
+            
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product has been successfully added to cart.',
+                    'redirect' => '/checkout'
+                ]);
+            }
+            
             return redirect('/checkout')->with('success', 'Product has been successfully added to cart.');
         }
     }
@@ -240,6 +290,16 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
+            
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product has been successfully added to cart.',
+                    'redirect' => false
+                ]);
+            }
+            
             return redirect()->back()->with('success', 'Product has been successfully added to cart.');
         }
 
@@ -271,6 +331,16 @@ class CartController extends Controller
                     $cartProduct->save();
                 }
             }
+            
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Product has been successfully added to cart.',
+                    'redirect' => '/checkout'
+                ]);
+            }
+            
             return redirect('/checkout')->with('success', 'Product has been successfully added to cart.');
         }
     }

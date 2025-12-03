@@ -95,7 +95,7 @@
                                                         <i class="fas fa-shopping-cart"></i>
                                                         Add to Cart
                                                     </button>
-                                                    <button type="submit" name="action" value="buyNow" class="cart-btn-inner">
+                                                    <button type="submit" name="action" value="buyNow" class="cart-btn-inner" onclick="return handleBuyNow(event)">
                                                         <i class="fas fa-truck"></i>
                                                         Order Now
                                                     </button>
@@ -343,10 +343,15 @@
         });
     });
     
-    // Handle add to cart event for datalayer
+    // Handle add to cart event
     function handleAddToCart(event) {
         event.preventDefault();
         
+        var form = document.getElementById('addToCartForm');
+        var formData = new FormData(form);
+        formData.append('action', 'addToCart');
+        
+        // Push to datalayer
         var product_name = document.getElementById('product_name').value;
         var price = document.getElementById('price').value;
         var product_id = document.getElementById('product_id').value;
@@ -375,10 +380,128 @@
             }
         });
         
-        // Submit the form after a short delay to ensure datalayer is pushed
-        setTimeout(function() {
-            document.getElementById('addToCartForm').submit();
-        }, 100);
+        // Submit form via AJAX
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show Lobibox notification
+                Lobibox.notify('success', {
+                    pauseDelayOnHover: true,
+                    continueDelayOnInactiveTab: false,
+                    position: 'top right',
+                    icon: 'bx bx-check-circle',
+                    msg: data.message
+                });
+                
+                // Emit event to update cart count
+                if (typeof Reload !== 'undefined') {
+                    Reload.$emit('afterAddToCart');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Lobibox.notify('error', {
+                pauseDelayOnHover: true,
+                continueDelayOnInactiveTab: false,
+                position: 'top right',
+                icon: 'bx bx-x-circle',
+                msg: 'An error occurred while adding the product to cart.'
+            });
+        });
+        
+        return false;
+    }
+    
+    // Handle buy now event (redirect to checkout)
+    function handleBuyNow(event) {
+        event.preventDefault();
+        
+        var form = document.getElementById('addToCartForm');
+        var formData = new FormData(form);
+        formData.append('action', 'buyNow');
+        
+        // Push to datalayer
+        var product_name = document.getElementById('product_name').value;
+        var price = document.getElementById('price').value;
+        var product_id = document.getElementById('product_id').value;
+        var category = document.getElementById('category').value;
+        var qty = document.getElementById('qty').value;
+        
+        dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            ecommerce: null
+        });
+        dataLayer.push({
+            event: "add_to_cart",
+            ecommerce: {
+                items: [{
+                    item_name: product_name,
+                    item_id: product_id,
+                    price: price,
+                    item_brand: "Unknown",
+                    item_category: category,
+                    item_variant: "",
+                    item_list_name: "",
+                    item_list_id: "",
+                    index: 0,
+                    quantity: parseInt(qty)
+                }]
+            }
+        });
+        
+        // Submit form via AJAX
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show Lobibox notification
+                Lobibox.notify('success', {
+                    pauseDelayOnHover: true,
+                    continueDelayOnInactiveTab: false,
+                    position: 'top right',
+                    icon: 'bx bx-check-circle',
+                    msg: data.message
+                });
+                
+                // Emit event to update cart count
+                if (typeof Reload !== 'undefined') {
+                    Reload.$emit('afterAddToCart');
+                }
+                
+                // Redirect to checkout after a short delay
+                if (data.redirect) {
+                    setTimeout(function() {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Lobibox.notify('error', {
+                pauseDelayOnHover: true,
+                continueDelayOnInactiveTab: false,
+                position: 'top right',
+                icon: 'bx bx-x-circle',
+                msg: 'An error occurred while adding the product to cart.'
+            });
+        });
         
         return false;
     }

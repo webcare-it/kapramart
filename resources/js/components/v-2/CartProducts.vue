@@ -225,20 +225,36 @@ import cartRow from './CartRow.vue'
                         price: related.regular_price,
                     }).then(response => {
                         if(response.status == 200){
-                            this.$swal({
-                                position: 'top-end',
-                                icon: 'success',
-                                title: 'Product added to cart',
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
+                            // Show Lobibox notification instead of redirecting
+                            if (typeof Lobibox !== 'undefined') {
+                                Lobibox.notify('success', {
+                                    pauseDelayOnHover: true,
+                                    continueDelayOnInactiveTab: false,
+                                    position: 'top right',
+                                    icon: 'bx bx-check-circle',
+                                    msg: 'Product has been successfully added to cart.'
+                                });
+                            } else {
+                                alert('Product has been successfully added to cart.');
+                            }
                             Reload.$emit('afterAddToCart');
-                            window.location.href = '/checkout'
-                            //flash('Product has been successfully added to cart.', 'success');
+                            // Remove the redirect to checkout
+                            // window.location.href = '/checkout'
                         }
                         //console.log(response)
                     }).catch(error => {
                         console.log(error)
+                        if (typeof Lobibox !== 'undefined') {
+                            Lobibox.notify('error', {
+                                pauseDelayOnHover: true,
+                                continueDelayOnInactiveTab: false,
+                                position: 'top right',
+                                icon: 'bx bx-x-circle',
+                                msg: 'An error occurred while adding the product to cart.'
+                            });
+                        } else {
+                            alert('An error occurred while adding the product to cart.');
+                        }
                     })
                 }else{
                     axios.post('/add/to/cart/' + related.id,{
@@ -248,20 +264,36 @@ import cartRow from './CartRow.vue'
                         price: related.discount_price,
                     }).then(response => {
                         if(response.status == 200){
-                            this.$swal({
-                                position: 'top-end',
-                                icon: 'success',
-                                title: 'Product added to cart',
-                                showConfirmButton: false,
-                                timer: 1500
-                            })
+                            // Show Lobibox notification instead of redirecting
+                            if (typeof Lobibox !== 'undefined') {
+                                Lobibox.notify('success', {
+                                    pauseDelayOnHover: true,
+                                    continueDelayOnInactiveTab: false,
+                                    position: 'top right',
+                                    icon: 'bx bx-check-circle',
+                                    msg: 'Product has been successfully added to cart.'
+                                });
+                            } else {
+                                alert('Product has been successfully added to cart.');
+                            }
                             Reload.$emit('afterAddToCart');
-                            window.location.href = '/checkout'
-                            //flash('Product has been successfully added to cart.', 'success');
+                            // Remove the redirect to checkout
+                            // window.location.href = '/checkout'
                         }
                         //console.log(response)
                     }).catch(error => {
                         console.log(error)
+                        if (typeof Lobibox !== 'undefined') {
+                            Lobibox.notify('error', {
+                                pauseDelayOnHover: true,
+                                continueDelayOnInactiveTab: false,
+                                position: 'top right',
+                                icon: 'bx bx-x-circle',
+                                msg: 'An error occurred while adding the product to cart.'
+                            });
+                        } else {
+                            alert('An error occurred while adding the product to cart.');
+                        }
                     })
                 }
             },

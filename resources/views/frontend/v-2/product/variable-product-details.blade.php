@@ -131,14 +131,14 @@
                             <div class="my-4 gap-3 font-medium">
                                 <input type="hidden" name="button_action" id="buttonAction" value="">
                                 <div class="my-2">
-                                    <button onclick="handleAddToCart('buyNow')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
+                                    <button type="button" onclick="handleAddToCart('buyNow')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
                                         <i class="fa-solid fa-truck"></i> Order Now
                                     </button>
                                 </div>
                             </div>
 
                             <div class="my-2">
-                                <button onclick="handleAddToCart('addToCart')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
+                                <button type="button" onclick="handleAddToCart('addToCart')" class="font-medium order-btn btn py-2 w-100 lg-w-60">
                                     <i class="fa-solid fa-cart-shopping"></i> Add to Cart
                                 </button>
                             </div>
@@ -270,17 +270,22 @@
    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script> --}}
 
     <script>
-        // Handle add to cart event for datalayer
+        // Handle add to cart event
         function handleAddToCart(action) {
+            // Set the action value in the hidden input
+            document.getElementById('buttonAction').value = action;
+            
+            var form = document.getElementById('addToCartForm');
+            var formData = new FormData(form);
+            
+            // Get product details for datalayer
             var product_name = document.getElementById('product_name').value;
             var price = document.getElementById('price').value;
             var product_id = document.getElementById('product_id').value;
             var category = document.getElementById('category').value;
             var qty = document.getElementById('inputQty').value;
             
-            // Set the action value in the hidden input
-            document.getElementById('buttonAction').value = action;
-            
+            // Push to datalayer
             dataLayer = window.dataLayer || [];
             dataLayer.push({
                 ecommerce: null
@@ -303,10 +308,50 @@
                 }
             });
             
-            // Submit the form after a short delay to ensure datalayer is pushed
-            setTimeout(function() {
-                document.getElementById('addToCartForm').submit();
-            }, 100);
+            // Submit form via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Show Lobibox notification
+                    Lobibox.notify('success', {
+                        pauseDelayOnHover: true,
+                        continueDelayOnInactiveTab: false,
+                        position: 'top right',
+                        icon: 'bx bx-check-circle',
+                        msg: data.message
+                    });
+                    
+                    // Emit event to update cart count
+                    if (typeof Reload !== 'undefined') {
+                        Reload.$emit('afterAddToCart');
+                    }
+                    
+                    // Redirect to checkout for buyNow action
+                    if (action === 'buyNow' && data.redirect) {
+                        setTimeout(function() {
+                            window.location.href = data.redirect;
+                        }, 1000);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Lobibox.notify('error', {
+                    pauseDelayOnHover: true,
+                    continueDelayOnInactiveTab: false,
+                    position: 'top right',
+                    icon: 'bx bx-x-circle',
+                    msg: 'An error occurred while adding the product to cart.'
+                });
+            });
         }
         
         // Existing functions from the original file

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title')</title>
     <link rel="icon" href="{{asset('uploads/setting/'.$setting->logo)}}" type="image/png" />
+    <!-- Lobibox CSS -->
+    <link rel="stylesheet" href="{{ asset('backend/assets/plugins/notifications/css/lobibox.min.css') }}">
     <style>
         .rating-stars input[type="radio"] {
             display: none;
@@ -127,6 +129,9 @@
 
     <!-- Jquery CDN -->
     @include('frontend.v-2.includes.script')
+    <!-- Lobibox JS -->
+    <script src="{{ asset('backend/assets/plugins/notifications/js/lobibox.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/plugins/notifications/js/notifications.min.js') }}"></script>
     @stack('script')
     <a href="https://wa.me/{{ $setting->whatsapp ?? '' }}" target="_blank" class="whatapps-btn-inner">
         <i class="fab fa-whatsapp"></i>
