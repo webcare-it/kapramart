@@ -59,7 +59,7 @@ Route::post('/customer/product/return/info', [App\Http\Controllers\Frontend\Fron
 
 //===============Contact us =============//
 Route::get('/contact-us', [App\Http\Controllers\Frontend\FrontendController::class, 'contactUs']);
-Route::post('/contact/store', [App\Http\Controllers\Frontend\FrontendController::class, 'contact']);
+Route::post('/contact/store', [App\Http\Controllers\Frontend\FrontendController::class, 'contact'])->name('contact.store');
 //======= Setting policy =========//
 Route::get('/privacy-policy', [App\Http\Controllers\Frontend\FrontendController::class, 'privacyPolicy']);
 Route::get('/payment-policy', [App\Http\Controllers\Frontend\FrontendController::class, 'paymentPolicy']);

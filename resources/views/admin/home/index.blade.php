@@ -15,7 +15,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Today Orders</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::whereDate('created_at', \Illuminate\Support\Carbon::today())->where('is_deleted', '!=', true)->get()->count() }}
+                                        {{ \App\Models\Order::whereDate('created_at', \Illuminate\Support\Carbon::today())->where('is_deleted', '!=', true)->get()->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
@@ -34,7 +34,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Today Manual</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::whereDate('created_at', \Illuminate\Support\Carbon::today())->where('order_type', 'Manual')->where('is_deleted', '!=', true)->get()->count() }}
+                                        {{ \App\Models\Order::whereDate('created_at', \Illuminate\Support\Carbon::today())->where('order_type', 'Manual')->where('is_deleted', '!=', true)->get()->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
@@ -53,7 +53,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Today Pending</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'pending')->where('is_deleted', '!=', true)->get()->count() }}
+                                        {{ \App\Models\Order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'pending')->where('is_deleted', '!=', true)->get()->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
@@ -72,7 +72,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Pending Payment</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::where('order_status', 'pending payment')->get()->where('is_deleted', '!=', true)->count() }}
+                                        {{ \App\Models\Order::where('order_status', 'pending payment')->get()->where('is_deleted', '!=', true)->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
@@ -91,7 +91,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Today Delivered</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'delivered')->where('pathao_order_status', null)->where('is_deleted', '!=', true)->get()->count() }}
+                                        {{ \App\Models\Order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'delivered')->where('pathao_order_status', null)->where('is_deleted', '!=', true)->get()->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
@@ -110,7 +110,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Today Cancel</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'cancel')->where('is_deleted', '!=', true)->get()->count() }}
+                                        {{ \App\Models\Order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'cancel')->where('is_deleted', '!=', true)->get()->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
@@ -129,7 +129,7 @@
                                 <div>
                                     <p class="mb-0 text-white">Today Hold</p>
                                     <h5 class="mb-0 text-white">
-                                        {{ \App\Models\order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'hold')->get()->where('is_deleted', '!=', true)->count() }}
+                                        {{ \App\Models\Order::whereDate('updated_at', \Illuminate\Support\Carbon::today())->where('order_status', 'hold')->get()->where('is_deleted', '!=', true)->count() }}
                                     </h5>
                                 </div>
                                 <div class="ms-auto text-white"> <i class='bx bx-group font-30'></i>
