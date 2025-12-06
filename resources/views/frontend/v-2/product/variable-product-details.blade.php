@@ -189,9 +189,11 @@
                                         $videoId = $matches[1];
                                     } elseif (preg_match('/youtube\.com\/v\/([^\&\?\/]+)/', $url, $matches)) {
                                         $videoId = $matches[1];
+                                    } elseif (preg_match('/youtube\.com\/shorts\/([^\&\?\/]+)/', $url, $matches)) {
+                                        $videoId = $matches[1];
                                     } elseif (preg_match('/youtube\.com\/watch\?v=([^\&\?\/]+)/', $url, $matches)) {
                                         $videoId = $matches[1];
-                                    }
+                                    
                                     ?>
                                     @if($videoId)
                                     <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
