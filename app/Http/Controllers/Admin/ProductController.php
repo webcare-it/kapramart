@@ -586,6 +586,7 @@ class ProductController extends Controller
 
     public function edit($id, $slug)
     {
+        $slug = urldecode($slug);
         return view('admin.products.edit', [
             'categories' => Category::orderBy('created_at', 'desc')->get(),
             'subcategories' => Subcategory::orderBy('created_at', 'desc')->get(),
@@ -648,6 +649,7 @@ class ProductController extends Controller
 
     public function editVariableProduct ($id, $slug)
     {
+        $slug = urldecode($slug);
         $categories = Category::orderBy('created_at', 'desc')->get();
         $subcategories = Subcategory::orderBy('created_at', 'desc')->get();
         $brands = Brand::orderBy('created_at', 'desc')->get();

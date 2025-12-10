@@ -70,11 +70,11 @@
                                             </td>
                                             <td>
                                                 @if ($product->is_variable == null)
-                                                <a href="{{ route('products.edit', ['id' => $product->id, 'slug' => $product->slug]) }}" class="badge rounded-pill bg-info">
+                                                <a href="{{ route('products.edit', ['id' => $product->id, 'slug' => urlencode($product->slug)]) }}" class="badge rounded-pill bg-info">
                                                     <i class="bx bx-edit-alt" style="font-size: 20px; color: rgb(244, 247, 248);"></i>
                                                 </a>
                                                 @else
-                                                <a href="{{ route('variable.products.edit', ['id' => $product->id, 'slug' => $product->slug]) }}" class="badge rounded-pill bg-info">
+                                                <a href="{{ route('variable.products.edit', ['id' => $product->id, 'slug' => urlencode($product->slug)]) }}" class="badge rounded-pill bg-info">
                                                     <i class="bx bx-edit-alt" style="font-size: 20px; color: rgb(244, 247, 248);"></i>
                                                 </a>
                                                 @endif
